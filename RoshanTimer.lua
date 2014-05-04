@@ -71,7 +71,7 @@ end
 
 function Close()
 	deathTime = nil
-	InstructionTextToSpawn = false
+	InstructionTextToSpawn.visible = false
 	StatusText.visible = false
 end
 
