@@ -5,7 +5,7 @@ BsleepTick = nil
 -- Enable Abuse Bottle?
 funcbottle = true
 -- Enable Auto Phase Boots?
-funcphaseboots = false
+funcphaseboots = true
 -- Enable Auto Linken's Sphere?
 funclsphere = true
 
