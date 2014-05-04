@@ -60,11 +60,11 @@ end
 function InvisibleHeroes(v)
 	local invokerhuesos=ivoka("invoker_ghost_walk",v)
 	local invisItem = v:FindItem("item_invis_sword")
-	local invisBottle = v:FindItem("item_bottle_invisible")
+	local invisBottle = v:FindItem("item_bottle")
 	if invisItem and invisItem.state == LuaEntityAbility.STATE_READY then
 		return true
 	end
-	if invisBottle and invisBottle.state == LuaEntityAbility.STATE_READY then
+	if invisBottle and invisBottle.storedRune == 3 then
 		return true
 	end
 	if v.name == "npc_dota_hero_riki" then
