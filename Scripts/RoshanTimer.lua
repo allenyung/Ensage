@@ -17,6 +17,8 @@ function Frame( tick )
 		if #entities == 1 then
 			StatusText.text = "Roshan: Alive"
 			ReloadTextSpawn.visible=false
+			InstructionTextToSpawn.visible = false
+			InstructionTextSpawn.visible = false
 		elseif #entities == 0 then
 			StatusText.text = "Roshan: Dead"
 			ReloadTextSpawn.visible = true
