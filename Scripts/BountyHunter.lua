@@ -39,22 +39,18 @@ function Tick( tick )
 				local CheckInvis = me:DoesHaveModifier("modifier_bounty_hunter_wind_walk")
 				if autotrackinv and InvisibleHeroes(v) and not CheckTrack and not CheckInvis and distance <= 1200 then
 					me:SafeCastAbility(Track,v)
-					sleepTick = tick + 500
-					return
 				end		
 				if autotrackhp and not CheckTrack and not CheckInvis and v.health/v.maxHealth < hpbarfortrack and distance <= 1200 then
 					me:SafeCastAbility(Track,v)
-					sleepTick = tick + 500
-					return
 				end
 				if shurikensteal and Shuriken.level > 0 and v.health < damage[Shuriken.level]*(1-v.magicDmgResist) and distance < range then
 					me:SafeCastAbility(Shuriken,v)
-					sleepTick = tick + 500
-					return
 				end
 			end
 		end
 	end
+	sleepTick = tick + 333
+	return
 end
 
 function InvisibleHeroes(v)
