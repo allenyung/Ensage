@@ -27,6 +27,7 @@ function Tick( tick )
 	local InvForgeds = entityList:FindEntities({classId=CDOTA_BaseNPC_Invoker_Forged_Spirit,controllable=true,alive=true,visible=true})
 	local WarlockGolem = entityList:FindEntities({classId=CDOTA_BaseNPC_Warlock_Golem,controllable=true,alive=true,visible=true})
 	local TuskSigil = entityList:FindEntities({classId=CDOTA_BaseNPC_Tusk_Sigil,controllable=true,alive=true,visible=true})
+	local Necronomicons = entityList:FindEntities({classId=CDOTA_BaseNPC_Creep,controllable=true,alive=true,visible=true})
 	local Illusions = entityList:FindEntities({classId=TYPE_HERO,controllable=true,alive=true,visible=true,illusion=true})
 	
 	if mode == 1 then
@@ -101,6 +102,20 @@ function Tick( tick )
 						if distance <= 1300 then
 							v:Follow(target)
 						end
+					end
+				end
+			end
+			
+			if #Necronomicons > 0 then
+				for i,v in ipairs(Necronomicons) do
+					if v.controllable and v.unitState ~= -1031241196 then
+						if v.name == "npc_dota_necronomicon_archer_1" or v.name == "npc_dota_necronomicon_archer_2" or v.name == "npc_dota_necronomicon_archer_3" then
+							local distance = GetDistance2D(v,target)
+							if distance < 600 then
+								v:SafeCastAbility(v:GetAbility(1),target)
+							end				
+						end
+						v:Attack(target)
 					end
 				end
 			end
