@@ -1,17 +1,17 @@
 require("libs.Utils")
-damage = {100,200,250,325}
-range = 650
-sleepTick = nil
+local damage = {100,200,250,325}
+local range = 650
+local sleepTick = nil
 
 -- Setting
 -- % enemy hp for use track.
-hpbarfortrack = 0.4
+local hpbarfortrack = 0.4
 -- Auto Track when enemy HP enemy < %
-autotrackhp = true
+local autotrackhp = true
 -- Auto Track when enemy have invisible rune,items,spells.
-autotrackinv = true
+local autotrackinv = true
 -- Auto Shuriken Steal.
-shurikensteal = true
+local shurikensteal = true
 function Tick( tick )
 	if not client.connected or client.loading or client.console or client.paused then 
 		return 
@@ -43,7 +43,7 @@ function Tick( tick )
 				if autotrackhp and not CheckTrack and not CheckInvis and v.health/v.maxHealth < hpbarfortrack and distance <= 1200 then
 					me:SafeCastAbility(Track,v)
 				end
-				if shurikensteal and Shuriken.level > 0 and v.health < damage[Shuriken.level]*(1-v.magicDmgResist) and distance < range then
+				if shurikensteal and Shuriken.level > 0 and v.health+v.healthRegen < damage[Shuriken.level]*(1-v.magicDmgResist) and distance < range then
 					me:SafeCastAbility(Shuriken,v)
 				end
 			end
