@@ -1,15 +1,42 @@
+--[[
+-- Controll List. -- 
+	* Controll All Neutrals.
+	* Controll All Illusions.
+	* Controll [Invoker] Forged Spirit.
+	* Controll [Warlock] Golem.
+	* Controll [Tusk] Sigil.
+	* Controll [Necronomicons].
+-- Notes/How to use. --
+	SPACE - Controll[Creeps Attack enemy,Cast Skills].
+		* Change key config "activated_button".
+		* Creeps have Target param "mode".
+			* mode=1 - GetTarget you hero radius.
+			* mode=2 - GetTarget your Mouse Cursor.
+			* mode=3 - GetTarget Creep radius.
+	L - Support [stackscript].
+		* Only works for Neutrals!
+		* Select Creep and press "L" and use "O" for stack ;)
+		* To remove this Creep. Target self or select any other your Creep and then press "L".
+		* Creep will not respond to SPACE[Controll].
+		* Change key config "no_stack_creep_button".
+		* If the parameter "effecttocreep" true, then creep will have effect aura.
+]]
 require("libs.Utils")
 require("libs.TargetFind")
-activated = false
-creepHandle = nil
-param = 1
-Font = drawMgr:CreateFont("NoStack","Arial",14,500)
-NoStackText = drawMgr:CreateText(5,63,-1,"",Font)
+local Version = "1.05"
+local eff = {}
+local activated = false
+local creepHandle = nil
+local SaveCreep = nil
+local param = 1
+local Font = drawMgr:CreateFont("NoStack","Arial",14,500)
+local NoStackText = drawMgr:CreateText(5,63,-1,"",Font)
 
 -- Setting
-activated_button = string.byte(" ") -- KEY TO USE
-no_stack_creep_button = string.byte("L") -- KEY TO USE
-mode=3 -- MODE 1/2/3 see http://www.zynox.net/forum/threads/674-ez4-Chuan-by-kj2a
+local activated_button = string.byte(" ") -- KEY TO USE
+local no_stack_creep_button = string.byte("L") -- KEY TO USE
+local mode=3 -- MODE 1/2/3
+local effecttocreep = true -- Effect for Creep.
 
 function Tick( tick )
 	if not client.connected or client.loading or client.console or client.paused then 
@@ -29,6 +56,18 @@ function Tick( tick )
 	local TuskSigil = entityList:FindEntities({classId=CDOTA_BaseNPC_Tusk_Sigil,controllable=true,alive=true,visible=true})
 	local Necronomicons = entityList:FindEntities({classId=CDOTA_BaseNPC_Creep,controllable=true,alive=true,visible=true})
 	local Illusions = entityList:FindEntities({classId=TYPE_HERO,controllable=true,alive=true,visible=true,illusion=true})
+
+	if creepHandle ~= nil and effecttocreep then
+		if not SaveCreep.alive then
+			if eff[creepHandle] ~= nil then
+				eff[creepHandle] = nil
+				creepHandle = nil
+				SaveCreep = nil
+				NoStackText.visible = false
+				collectgarbage("collect")
+			end
+		end
+	end
 	
 	if mode == 1 then
 		target = targetFind:GetLastMouseOver(1300)
@@ -151,24 +190,54 @@ function Key(msg,code)
 			return
 		end
 		
+		local effectDeleted = false
+		
 		if param == 2 then
+			if eff[creepHandle] ~= nil and effecttocreep then
+				eff[creepHandle] = nil
+				effectDeleted = true
+			end
+			SaveCreep = nil
 			creepHandle = nil
 			NoStackText.visible = false
 			param = 1
 		end
+		
+		if effectDeleted then
+			collectgarbage("collect")
+		end
 
 		local selection = player.selection
-		if #selection ~= 1 or (selection[1].type ~= LuaEntity.TYPE_CREEP and selection[1].type ~= LuaEntity.TYPE_NPC) or not selection[1].controllable then
+		if #selection ~= 1 or (selection[1].type ~= LuaEntity.TYPE_CREEP and selection[1].type ~= LuaEntity.TYPE_NPC) or selection[1].classId ~= CDOTA_BaseNPC_Creep_Neutral or not selection[1].alive or not selection[1].controllable then
 			return
 		end
 
 		if param == 1 then
 			creepHandle = selection[1].handle
+			SaveCreep = selection[1]
+			if eff[creepHandle] == nil and effecttocreep then
+				eff[creepHandle] = Effect(selection[1],"aura_assault")
+				eff[creepHandle]:SetVector(1,Vector(0,0,0))
+			end
 			NoStackText.text = "Stack Creep: "..client:Localize(selection[1].name)
 			NoStackText.visible = true
 			param = 2
 		end
 	end
 end
+
+function GameClose()
+	eff = {}
+	activated = false
+	creepHandle = nil
+	SaveCreep = nil
+	param = 1
+	script:UnregisterEvent(Key)
+	script:UnregisterEvent(Tick)
+	script:UnregisterEvent(GameClose)
+	collectgarbage("collect")
+end
+
 script:RegisterEvent(EVENT_KEY,Key)
 script:RegisterEvent(EVENT_TICK,Tick)
+script:RegisterEvent(EVENT_CLOSE,GameClose)
