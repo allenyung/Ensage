@@ -1,11 +1,11 @@
 require("libs.Utils")
-BsleepTick = nil
+local BsleepTick = nil
 
 -- Setting
 -- Enable Abuse Bottle?
-funcbottle = true
+local funcbottle = true
 -- Enable Auto Phase Boots?
-funcphaseboots = true
+local funcphaseboots = true
 
 function BTick( tick )
 	if not client.connected or client.loading or client.console then
@@ -23,8 +23,10 @@ function BTick( tick )
 	
 	local bottle = me:FindItem("item_bottle")
 	local phaseboots = me:FindItem("item_phase_boots")
+	local DruidBear = entityList:FindEntities({classId=CDOTA_Unit_SpiritBear,controllable=true,alive=true,visible=true})
+	local Meepos = entityList:FindEntities({classId=TYPE_HERO,controllable=true,alive=true,visible=true,illusion=true})
 	
-	if not bottle and not phaseboots then
+	if not bottle and not phaseboots and #DruidBear == 0 then
 		return
 	end
 	
@@ -38,6 +40,28 @@ function BTick( tick )
 	
 	if funcphaseboots and phaseboots and me.alive == true and phaseboots.state == -1 and me.unitState ~= 33554432 and me.unitState ~= 256 and me.unitState ~= 33554688 then
 		me:SafeCastItem("item_phase_boots")
+	end
+	
+	if #DruidBear > 0 then
+		for _,v in ipairs(DruidBear) do
+			if v.controllable and v.unitState ~= -1031241196 then
+				local duingoboots = v:FindItem("item_phase_boots")
+				if duingoboots and duingoboots.state == -1 then
+					v:SafeCastItem("item_phase_boots")
+				end
+			end
+		end
+	end
+	
+	if #Meepos > 0 then
+		for _,v in ipairs(Meepos) do
+			if v.controllable and v.unitState ~= -1031241196 then
+				local meepoboots = v:FindItem("item_phase_boots")
+				if meepoboots and meepoboots.state == -1 then
+					v:SafeCastItem("item_phase_boots")
+				end
+			end
+		end
 	end
 	
 	BsleepTick = tick + 500
