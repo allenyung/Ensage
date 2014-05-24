@@ -23,7 +23,7 @@
 ]]
 require("libs.Utils")
 require("libs.TargetFind")
-local Version = "1.05"
+local Version = "1.06"
 local eff = {}
 local activated = false
 local creepHandle = nil
@@ -235,9 +235,20 @@ function GameClose()
 	script:UnregisterEvent(Key)
 	script:UnregisterEvent(Tick)
 	script:UnregisterEvent(GameClose)
+	registered = false
 	collectgarbage("collect")
 end
 
-script:RegisterEvent(EVENT_KEY,Key)
-script:RegisterEvent(EVENT_TICK,Tick)
+function Load()
+	if registered then return end
+	script:RegisterEvent(EVENT_KEY,Key)
+	script:RegisterEvent(EVENT_TICK,Tick)
+	registered = true
+end
+
+if client.connected and not client.loading then
+	Load()
+end
+
+script:RegisterEvent(EVENT_LOAD,Load)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
