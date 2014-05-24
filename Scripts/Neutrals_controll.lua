@@ -6,6 +6,7 @@
 	* Controll [Warlock] Golem.
 	* Controll [Tusk] Sigil.
 	* Controll [Necronomicons].
+	* Controll [DruidBear]
 -- Notes/How to use. --
 	SPACE - Controll[Creeps Attack enemy,Cast Skills].
 		* Change key config "activated_button".
@@ -56,6 +57,8 @@ function Tick( tick )
 	local TuskSigil = entityList:FindEntities({classId=CDOTA_BaseNPC_Tusk_Sigil,controllable=true,alive=true,visible=true})
 	local Necronomicons = entityList:FindEntities({classId=CDOTA_BaseNPC_Creep,controllable=true,alive=true,visible=true})
 	local Illusions = entityList:FindEntities({classId=TYPE_HERO,controllable=true,alive=true,visible=true,illusion=true})
+	local DruidBear = entityList:FindEntities({classId=CDOTA_Unit_SpiritBear,controllable=true,alive=true,visible=true})
+	
 
 	if creepHandle ~= nil and effecttocreep then
 		if not SaveCreep.alive then
@@ -141,6 +144,14 @@ function Tick( tick )
 						if distance <= 1300 then
 							v:Follow(target)
 						end
+					end
+				end
+			end
+			
+			if #DruidBear > 0 then
+				for i,v in ipairs(DruidBear) do
+					if v.controllable and v.unitState ~= -1031241196 then
+						v:Attack(target)
 					end
 				end
 			end
