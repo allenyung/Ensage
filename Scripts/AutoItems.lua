@@ -6,6 +6,9 @@ local BsleepTick = nil
 local funcbottle = true
 -- Enable Auto Phase Boots?
 local funcphaseboots = true
+-- Enable Auto Stick?
+local funcstick = true
+local stickuse = 0.2 -- 20% HP
 
 function BTick( tick )
 	if not client.connected or client.loading or client.console then
@@ -23,16 +26,12 @@ function BTick( tick )
 	
 	local bottle = me:FindItem("item_bottle")
 	local phaseboots = me:FindItem("item_phase_boots")
+	local lowstick = me:FindItem("item_magic_stick")
+	local gradestick = me:FindItem("item_magic_wand")
+	
 	local DruidBear = entityList:FindEntities({classId=CDOTA_Unit_SpiritBear,controllable=true,alive=true,visible=true})
 	local Meepos = entityList:FindEntities({classId=TYPE_HERO,controllable=true,alive=true,visible=true,illusion=true})
 	
-	if not bottle and not phaseboots and #DruidBear == 0 then
-		return
-	end
-	
-	if not funcbottle and not funcphaseboots then
-		return
-	end
 	
 	if  funcbottle and bottle and not me.invisible and not me:IsChanneling() and me:DoesHaveModifier("modifier_fountain_aura_buff") and not me:DoesHaveModifier("modifier_bottle_regeneration") then
 		me:SafeCastItem("item_bottle")
@@ -40,6 +39,14 @@ function BTick( tick )
 	
 	if funcphaseboots and phaseboots and me.alive == true and phaseboots.state == -1 and me.unitState ~= 33554432 and me.unitState ~= 256 and me.unitState ~= 33554688 then
 		me:SafeCastItem("item_phase_boots")
+	end
+	
+	if funcstick and lowstick and me.alive == true and lowstick.charges > 0 and me.health/me.maxHealth < stickuse then
+		me:SafeCastItem("item_magic_stick")
+	end
+	
+	if funcstick and gradestick and me.alive == true and gradestick.charges > 0 and me.health/me.maxHealth < stickuse then
+		me:SafeCastItem("item_magic_wand")
 	end
 	
 	if #DruidBear > 0 then
