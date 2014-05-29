@@ -24,7 +24,7 @@
 ]]
 require("libs.Utils")
 require("libs.TargetFind")
-local Version = "1.06"
+local Version = "1.09"
 local eff = {}
 local activated = false
 local creepHandle = nil
@@ -40,11 +40,7 @@ local mode=3 -- MODE 1/2/3
 local effecttocreep = true -- Effect for Creep.
 
 function Tick( tick )
-	if not client.connected or client.loading or client.console or client.paused then 
-		return 
-	end
-	
-	me = entityList:GetMyHero()
+	local me = entityList:GetMyHero()
 	if not me then return end
 	
 	if sleepTick and sleepTick > tick then
@@ -58,7 +54,6 @@ function Tick( tick )
 	local Necronomicons = entityList:FindEntities({classId=CDOTA_BaseNPC_Creep,controllable=true,alive=true,visible=true})
 	local Illusions = entityList:FindEntities({classId=TYPE_HERO,controllable=true,alive=true,visible=true,illusion=true})
 	local DruidBear = entityList:FindEntities({classId=CDOTA_Unit_SpiritBear,controllable=true,alive=true,visible=true})
-	
 
 	if creepHandle ~= nil and effecttocreep then
 		if not SaveCreep.alive then
@@ -80,6 +75,7 @@ function Tick( tick )
 		target = targetFind:GetClosestToMouse(1300)
 	else
 		print("please check mode 1/2/3. Thank.")
+		return
 	end
 	if target and activated then
 		if target.team == (5-me.team) then
@@ -108,7 +104,9 @@ function Tick( tick )
 										v:SafeCastAbility(v:GetAbility(1),target)
 									end							
 								end
-								v:Attack(target)
+								if distance <= 1300 then
+									v:Attack(target)
+								end
 							end
 						end
 					end
@@ -151,7 +149,10 @@ function Tick( tick )
 			if #DruidBear > 0 then
 				for i,v in ipairs(DruidBear) do
 					if v.controllable and v.unitState ~= -1031241196 then
-						v:Attack(target)
+						local distance = GetDistance2D(v,target)
+						if distance <= 1300 then
+							v:Attack(target)
+						end
 					end
 				end
 			end
@@ -159,13 +160,15 @@ function Tick( tick )
 			if #Necronomicons > 0 then
 				for i,v in ipairs(Necronomicons) do
 					if v.controllable and v.unitState ~= -1031241196 then
+						local distance = GetDistance2D(v,target)
 						if v.name == "npc_dota_necronomicon_archer_1" or v.name == "npc_dota_necronomicon_archer_2" or v.name == "npc_dota_necronomicon_archer_3" then
-							local distance = GetDistance2D(v,target)
 							if distance < 600 then
 								v:SafeCastAbility(v:GetAbility(1),target)
 							end				
 						end
-						v:Attack(target)
+						if distance <= 1300 then
+							v:Attack(target)
+						end
 					end
 				end
 			end
@@ -187,10 +190,8 @@ function Tick( tick )
 end
 
 function Key(msg,code)
-	if client.chat or not client.connected or client.loading then
-		return
-	end
-	
+	if client.chat then return end
+
     if code == activated_button then
         activated = (msg == KEY_DOWN)
 	end
@@ -245,21 +246,22 @@ function GameClose()
 	param = 1
 	script:UnregisterEvent(Key)
 	script:UnregisterEvent(Tick)
-	script:UnregisterEvent(GameClose)
-	registered = false
 	collectgarbage("collect")
+	if registered then
+		registered = false
+		script:RegisterEvent(EVENT_TICK,Load)
+	end
 end
 
 function Load()
-	if registered then return end
+	if not client.connected or client.loading or client.console then return end	
+	local me = entityList:GetMyHero()
+	if not me then return end
 	script:RegisterEvent(EVENT_KEY,Key)
 	script:RegisterEvent(EVENT_TICK,Tick)
 	registered = true
+	script:UnregisterEvent(Load)
 end
 
-if client.connected and not client.loading then
-	Load()
-end
-
-script:RegisterEvent(EVENT_LOAD,Load)
+script:RegisterEvent(EVENT_TICK,Load)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
