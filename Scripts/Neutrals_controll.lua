@@ -24,7 +24,18 @@
 ]]
 require("libs.Utils")
 require("libs.TargetFind")
-local Version = "1.09"
+if client.language == "russian" then
+	local f=io.open(SCRIPT_PATH.."/libs/Neutrals.lua","r")
+	if f~=nil then
+		io.close(f) 
+		require("libs.Neutrals")
+	else
+		print("Error: loading -> libs/Neutrals.lua")
+		script:Disable()
+		return
+	end
+end
+local Version = "1.10"
 local eff = {}
 local activated = false
 local creepHandle = nil
@@ -231,7 +242,12 @@ function Key(msg,code)
 				eff[creepHandle] = Effect(selection[1],"aura_assault")
 				eff[creepHandle]:SetVector(1,Vector(0,0,0))
 			end
-			NoStackText.text = "Stack Creep: "..client:Localize(selection[1].name)
+			if client.language == "russian" then
+				NoStackText.text = "Stack Creep: "..client:Localize(names[selection[1].name].Name)
+			else	
+				NoStackText.text = "Stack Creep: "..client:Localize(selection[1].name)
+			end
+			local name = client:Localize(selection[1].name)
 			NoStackText.visible = true
 			param = 2
 		end
@@ -254,7 +270,7 @@ function GameClose()
 end
 
 function Load()
-	if not client.connected or client.loading or client.console then return end	
+	if not client.connected or client.loading or client.console then return end
 	local me = entityList:GetMyHero()
 	if not me then return end
 	script:RegisterEvent(EVENT_KEY,Key)
